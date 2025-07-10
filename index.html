@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>All-in-One Free Games</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; background: #232946; color: #fff; margin: 0; }
+    h1, h2, h3 { text-align: center; }
+    nav { background: #121629; padding: 1em 0; }
+    nav ul { list-style: none; display: flex; flex-wrap: wrap; justify-content: center; margin: 0; padding: 0; }
+    nav li { margin: 0 0.7em; }
+    nav a { color: #eebbc3; font-weight: bold; text-decoration: none; font-size: 1.1em; }
+    nav a:hover { color: #fffffe; }
+    main { max-width: 900px; margin: 2em auto; background: #232946; border-radius: 10px; padding: 1em; box-shadow: 0 4px 16px rgba(0,0,0,0.16);}
+    section { display: none; }
+    section.active { display: block; }
+    .center { display: flex; justify-content: center; align-items: center; flex-direction: column; }
+    button, input[type="button"] { background: #eebbc3; color: #232946; border: none; border-radius: 5px; padding: 8px 16px; margin: 5px; font-size: 1em; cursor: pointer; }
+    button:hover { background: #fffffe; color: #232946; }
+    canvas { background: #121629; display: block; margin: 1em auto; border-radius: 8px;}
+    @media (max-width:700px) {
+      nav ul { flex-direction: column; }
+      main { padding: 0.5em; }
+    }
+    /* Game-specific styles */
+    .ttt-board { display: grid; grid-template-columns: repeat(3, 60px); grid-gap: 5px; margin: 1em auto;}
+    .ttt-cell { width: 60px; height: 60px; background: #b8c1ec; color: #232946; font-size: 2em; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 6px;}
+    .memory-board { display: grid; grid-template-columns: repeat(4, 60px); grid-gap: 8px; margin: 1em auto;}
+    .memory-card { width: 60px; height: 60px; background: #eebbc3; color: #121629; font-size: 2em; display: flex; align-items: center; justify-content: center; border-radius: 6px; cursor: pointer; }
+    .memory-card.flipped, .memory-card.matched { background: #b8c1ec; }
+    .minesweeper-board { display: grid; grid-template-columns: repeat(8, 32px); grid-gap: 2px; margin: 1em auto;}
+    .minesweeper-cell { width: 32px; height: 32px; background: #b8c1ec; color: #232946; font-weight: bold; font-size: 1.1em; display: flex; align-items: center; justify-content: center; border-radius: 3px; cursor: pointer; user-select: none;}
+    .minesweeper-cell.open { background: #eebbc3; }
+    .minesweeper-cell.flag { background: #fffffe; color: #232946; }
+    .snake-board { background: #b8c1ec; display: block; margin: 1em auto; }
+    .game-menu { margin: 2em auto; max-width: 450px; padding: 1em; border-radius: 8px; background: #121629; }
+    .game-menu button { width: 100%; margin: 0.5em 0; font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <nav>
+    <ul>
+      <li><a href="#" onclick="showSection('menu')">🏠 Home</a></li>
+      <li><a href="#" onclick="showSection('ttt')">Tic Tac Toe</a></li>
+      <li><a href="#" onclick="showSection('rps')">Rock Paper Scissors</a></li>
+      <li><a href="#" onclick="showSection('memory')">Memory Match</a></li>
+      <li><a href="#" onclick="showSection('snake')">Snake</a></li>
+      <li><a href="#" onclick="showSection('2048')">2048</a></li>
+      <li><a href="#" onclick="showSection('minesweeper')">Minesweeper</a></li>
+      <li><a href="#" onclick="showSection('guess')">Guess the Number</a></li>
+      <li><a href="#" onclick="showSection('pong')">Pong</a></li>
+      <li><a href="#" onclick="showSection('breakout')">Breakout</a></li>
+      <li><a href="#" onclick="showSection('whack')">Whack-a-Mole</a></li>
+    </ul>
+  </nav>
+  <main>
+    <!-- Main Menu -->
+    <section id="menu" class="active">
+      <h1>🎮 All-in-One Free Games</h1>
+      <div class="game-menu center">
+        <button onclick="showSection('ttt')">Tic Tac Toe</button>
+        <button onclick="showSection('rps')">Rock Paper Scissors</button>
+        <button onclick="showSection('memory')">Memory Match</button>
+        <button onclick="showSection('snake')">Snake</button>
+        <button onclick="showSection('2048')">2048</button>
+        <button onclick="showSection('minesweeper')">Minesweeper</button>
+        <button onclick="showSection('guess')">Guess the Number</button>
+        <button onclick="showSection('pong')">Pong</button>
+        <button onclick="showSection('breakout')">Breakout</button>
+        <button onclick="showSection('whack')">Whack-a-Mole</button>
+      </div>
+      <p style="text-align:center; margin-top:2em;">Made free for everyone – enjoy on any device!</p>
+    </section>
+    <!-- Tic Tac Toe -->
+    <section id="ttt">
+      <h2>Tic Tac Toe</h2>
+      <div id="ttt-board" class="ttt-board"></div>
+      <div class="center">
+        <span id="ttt-status"></span>
+        <button onclick="tttReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Rock Paper Scissors -->
+    <section id="rps">
+      <h2>Rock Paper Scissors</h2>
+      <div class="center">
+        <div>
+          <button onclick="rpsPlay('rock')">✊ Rock</button>
+          <button onclick="rpsPlay('paper')">✋ Paper</button>
+          <button onclick="rpsPlay('scissors')">✌️ Scissors</button>
+        </div>
+        <div id="rps-result" style="margin:1em; font-size:1.2em;"></div>
+        <div id="rps-score"></div>
+      </div>
+    </section>
+    <!-- Memory Match -->
+    <section id="memory">
+      <h2>Memory Match</h2>
+      <div id="memory-board" class="memory-board"></div>
+      <div class="center">
+        <span id="memory-status"></span>
+        <button onclick="memoryReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Snake -->
+    <section id="snake">
+      <h2>Snake</h2>
+      <canvas id="snake-board" width="320" height="320" class="snake-board"></canvas>
+      <div class="center">
+        <span id="snake-status"></span>
+        <button onclick="snakeReset()">Restart</button>
+      </div>
+    </section>
+    <!-- 2048 -->
+    <section id="2048">
+      <h2>2048</h2>
+      <canvas id="game-2048" width="320" height="320" style="background:#b8c1ec; margin:auto; display:block; border-radius:8px;"></canvas>
+      <div class="center">
+        <span id="score-2048">Score: 0</span>
+        <button onclick="init2048()">Restart</button>
+      </div>
+      <div style="text-align:center; margin-top:1em;">Use arrow keys or swipe to play.</div>
+    </section>
+    <!-- Minesweeper -->
+    <section id="minesweeper">
+      <h2>Minesweeper</h2>
+      <div id="minesweeper-board" class="minesweeper-board"></div>
+      <div class="center">
+        <span id="minesweeper-status"></span>
+        <button onclick="minesweeperReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Guess the Number -->
+    <section id="guess">
+      <h2>Guess the Number</h2>
+      <div class="center">
+        <p>I'm thinking of a number between 1 and 100. Can you guess it?</p>
+        <input type="number" id="guess-input" min="1" max="100" style="width:70px;">
+        <button onclick="guessCheck()">Guess</button>
+        <div id="guess-status" style="margin-top:1em;"></div>
+        <button onclick="guessReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Pong -->
+    <section id="pong">
+      <h2>Pong</h2>
+      <canvas id="pong-board" width="400" height="300" style="background:#b8c1ec; margin:auto; display:block; border-radius:8px;"></canvas>
+      <div class="center">
+        <span id="pong-status">Use ↑ and ↓ keys (or swipe) to play.</span>
+        <button onclick="pongReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Breakout -->
+    <section id="breakout">
+      <h2>Breakout</h2>
+      <canvas id="breakout-board" width="400" height="320" style="background:#b8c1ec; margin:auto; display:block; border-radius:8px;"></canvas>
+      <div class="center">
+        <span id="breakout-status">Use ← and → keys (or swipe) to play.</span>
+        <button onclick="breakoutReset()">Restart</button>
+      </div>
+    </section>
+    <!-- Whack-a-Mole -->
+    <section id="whack">
+      <h2>Whack-a-Mole</h2>
+      <div class="center">
+        <div id="whack-board" style="display:grid;grid-template-columns:repeat(3,70px);gap:8px;"></div>
+        <span id="whack-status"></span>
+        <button onclick="whackReset()">Restart</button>
+      </div>
+    </section>
+  </main>
+  <script>
+    // Section navigation
+    function showSection(id) {
+      document.querySelectorAll('main section').forEach(s=>s.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      // Reset focus for mobile
+      window.scrollTo(0,0);
+    }
+    // On load, show menu
+    showSection('menu');
+
+    //========= TIC TAC TOE ==========
+    let tttBoard, tttCurrent, tttWinner, tttMoves;
+    function tttReset() {
+      tttBoard = Array(9).fill('');
+      tttCurrent = 'X'; tttWinner = null; tttMoves = 0;
+      tttDraw();
+      document.getElementById('ttt-status').textContent = "Turn: " + tttCurrent;
+    }
+    function tttDraw() {
+      let boardDiv = document.getElementById('ttt-board');
+      boardDiv.innerHTML = '';
+      tttBoard.forEach((cell,i)=>{
+        let c = document.createElement('div');
+        c.className = 'ttt-cell';
+        c.textContent = cell;
+        c.onclick = ()=>tttMove(i);
+        boardDiv.appendChild(c);
+      });
+    }
+    function tttMove(i) {
+      if(tttBoard[i]||tttWinner) return;
+      tttBoard[i]=tttCurrent; tttMoves++;
+      if(tttCheckWin()) {
+        document.getElementById('ttt-status').textContent = tttCurrent+" wins!";
+        tttWinner = tttCurrent;
+      } else if(tttMoves===9) {
+        document.getElementById('ttt-status').textContent = "It's a tie!";
+        tttWinner = 'Tie';
+      } else {
+        tttCurrent = tttCurrent==='X'?'O':'X';
+        document.getElementById('ttt-status').textContent = "Turn: " + tttCurrent;
+      }
+      tttDraw();
+    }
+    function tttCheckWin() {
+      const WINS=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+      return WINS.some(w=>w.every(i=>tttBoard[i]===tttCurrent));
+    }
+    tttReset();
+
+    //========= ROCK PAPER SCISSORS ==========
+    let rpsScore = {player:0, comp:0};
+    function rpsPlay(player) {
+      const options = ['rock','paper','scissors'];
+      const comp = options[Math.floor(Math.random()*3)];
+      let result;
+      if(player===comp) result = "It's a tie!";
+      else if(
+        (player==='rock'&&comp==='scissors')||
+        (player==='scissors'&&comp==='paper')||
+        (player==='paper'&&comp==='rock')
+      ) { result = "You win!"; rpsScore.player++; }
+      else { result = "Computer wins!"; rpsScore.comp++; }
+      document.getElementById('rps-result').textContent=`You: ${player} | Computer: ${comp} → ${result}`;
+      document.getElementById('rps-score').textContent = `Score - You: ${rpsScore.player} | Computer: ${rpsScore.comp}`;
+    }
+    rpsScore = {player:0, comp:0};
+    document.getElementById('rps-result').textContent = "";
+    document.getElementById('rps-score').textContent = "Score - You: 0 | Computer: 0";
+
+    //========= MEMORY MATCH ==========
+    let memoryCards, memoryFlipped, memoryMatched, memoryBusy;
+    function memoryReset() {
+      let icons = ['🍎','🍋','🍇','🍉','🍒','🥝','🍑','🍓'];
+      memoryCards = [...icons,...icons].sort(()=>Math.random()-0.5).map((val,i)=>({val,flipped:false,matched:false}));
+      memoryFlipped = []; memoryMatched = 0; memoryBusy = false;
+      memoryDraw();
+      document.getElementById('memory-status').textContent = "";
+    }
+    function memoryDraw() {
+      let board = document.getElementById('memory-board');
+      board.innerHTML = '';
+      memoryCards.forEach((card,i)=>{
+        let d = document.createElement('div');
+        d.className = 'memory-card'+(card.flipped||card.matched?' flipped':'');
+        d.textContent = card.flipped||card.matched ? card.val : '';
+        d.onclick = ()=>memoryFlip(i);
+        board.appendChild(d);
+      });
+    }
+    function memoryFlip(i) {
+      if(memoryBusy||memoryCards[i].flipped||memoryCards[i].matched) return;
+      memoryCards[i].flipped = true;
+      memoryFlipped.push(i);
+      memoryDraw();
+      if(memoryFlipped.length===2) {
+        memoryBusy = true;
+        let [a,b]=memoryFlipped;
+        if(memoryCards[a].val===memoryCards[b].val) {
+          memoryCards[a].matched = memoryCards[b].matched = true;
+          memoryMatched++;
+          document.getElementById('memory-status').textContent = "Matched!";
+          setTimeout(()=>{memoryBusy=false;memoryFlipped=[];memoryDraw();if(memoryMatched===8)document.getElementById('memory-status').textContent="You win!";},600);
+        } else {
+          setTimeout(()=>{
+            memoryCards[a].flipped = memoryCards[b].flipped = false;
+            memoryBusy = false; memoryFlipped = []; memoryDraw();
+            document.getElementById('memory-status').textContent = "";
+          },900);
+        }
+      }
+    }
+    memoryReset();
+
+    //========= SNAKE ==========
+    let snake, snakeDir, snakeFood, snakeInterval, snakeScore, snakeOver;
+    function snakeReset() {
+      snake = [{x:8,y:8}]; snakeDir='RIGHT'; snakeFood=snakeRandFood(); snakeScore=0; snakeOver=false;
+      clearInterval(snakeInterval);
+      snakeInterval = setInterval(snakeMove,130);
+      document.getElementById('snake-status').textContent = "Score: 0";
+      snakeDraw();
+    }
+    function snakeRandFood() {
+      let f;
+      do {
+        f = {x:Math.floor(Math.random()*16), y:Math.floor(Math.random()*16)};
+      } while(snake.some(s=>s.x===f.x&&s.y===f.y));
+      return f;
+    }
+    function snakeDraw() {
+      let c = document.getElementById('snake-board').getContext('2d');
+      c.clearRect(0,0,320,320);
+      c.fillStyle="#232946";
+      snake.forEach(s=>{c.fillRect(s.x*20,s.y*20,20,20);});
+      c.fillStyle="#eebbc3";
+      c.fillRect(snakeFood.x*20,snakeFood.y*20,20,20);
+    }
+    function snakeMove() {
+      if(snakeOver) return;
+      let head = {...snake[0]};
+      if(snakeDir==='UP') head.y--;
+      if(snakeDir==='DOWN') head.y++;
+      if(snakeDir==='LEFT') head.x--;
+      if(snakeDir==='RIGHT') head.x++;
+      if(head.x<0||head.x>15||head.y<0||head.y>15||snake.some(s=>s.x===head.x&&s.y===head.y)) {
+        document.getElementById('snake-status').textContent = "Game Over! Score: "+snakeScore;
+        snakeOver=true;clearInterval(snakeInterval);return;
+      }
+      snake.unshift(head);
+      if(head.x===snakeFood.x&&head.y===snakeFood.y) {
+        snakeScore++; document.getElementById('snake-status').textContent = "Score: "+snakeScore;
+        snakeFood=snakeRandFood();
+      } else {
+        snake.pop();
+      }
+      snakeDraw();
+    }
+    document.addEventListener('keydown',e=>{
+      if(['UP','DOWN','LEFT','RIGHT'].includes(e.key.toUpperCase())) e.preventDefault();
+      if(e.key==='ArrowUp'&&snakeDir!=='DOWN') snakeDir='UP';
+      if(e.key==='ArrowDown'&&snakeDir!=='UP') snakeDir='DOWN';
+      if(e.key==='ArrowLeft'&&snakeDir!=='RIGHT') snakeDir='LEFT';
+      if(e.key==='ArrowRight'&&snakeDir!=='LEFT') snakeDir='RIGHT';
+    });
+    // Swipe controls (mobile)
+    let sx,sy;
+    document.getElementById('snake-board').addEventListener('touchstart',e=>{
+      sx=e.touches[0].clientX; sy=e.touches[0].clientY;
+    });
+    document.getElementById('snake-board').addEventListener('touchend',e=>{
+      let dx=e.changedTouches[0].clientX-sx, dy=e.changedTouches[0].clientY-sy;
+      if(Math.abs(dx)>Math.abs(dy)) snakeDir=dx>0?'RIGHT':'LEFT';
+      else snakeDir=dy>0?'DOWN':'UP';
+    });
+    snakeReset();
+
+    //========= 2048 ==========
+    let grid2048, score2048, over2048;
+    function init2048() {
+      grid2048 = Array(4).fill(0).map(()=>Array(4).fill(0));
+      score2048 = 0; over2048 = false;
+      add2048(); add2048();
+      draw2048();
+    }
+    function add2048() {
+      let empty=[];
+      for(let i=0;i<4;i++)for(let j=0;j<4;j++)if(!grid2048[i][j])empty.push([i,j]);
+      if(empty.length) {
+        let [i,j]=empty[Math.floor(Math.random()*empty.length)];
+        grid2048[i][j]=Math.random()<0.9?2:4;
+      }
+    }
+    function move2048(dir) {
+      let moved=false;
+      for(let i=0;i<4;i++) {
+        let arr = [];
+        for(let j=0;j<4;j++) arr.push(dir==='left'||dir==='right'?grid2048[i][dir==='left'?j:3-j]:grid2048[dir==='up'?j:3-j][i]);
+        let filtered = arr.filter(x=>x);
+        for(let k=0;k<filtered.length-1;k++) if(filtered[k]===filtered[k+1]) {filtered[k]*=2;score2048+=filtered[k];filtered[k+1]=0;}
+        filtered = filtered.filter(x=>x);
+        while(filtered.length<4) filtered.push(0);
+        for(let j=0;j<4;j++) {
+          let v = filtered[dir==='left'||dir==='up'?j:3-j];
+          if(dir==='left'||dir==='right') {if(grid2048[i][j]!==v)moved=true;grid2048[i][j]=v;}
+          else {if(grid2048[j][i]!==v)moved=true;grid2048[j][i]=v;}
+        }
+      }
+      if(moved) {add2048();draw2048();}
+      if(!canMove2048()) {over2048=true;draw2048();}
+    }
+    function draw2048() {
+      let c=document.getElementById('game-2048').getContext('2d');
+      c.clearRect(0,0,320,320);
+      for(let i=0;i<4;i++)for(let j=0;j<4;j++){
+        c.fillStyle=grid2048[i][j]?'#fffffe':'#eebbc3';
+        c.fillRect(j*80+5,i*80+5,70,70);
+        if(grid2048[i][j]) {
+          c.fillStyle='#232946';
+          c.font='bold 1.5em Arial';
+          c.textAlign='center';c.textBaseline='middle';
+          c.fillText(grid2048[i][j],j*80+40,i*80+40);
+        }
+      }
+      document.getElementById('score-2048').textContent = "Score: "+score2048+(over2048?" - Game Over":"");
+    }
+    function canMove2048() {
+      for(let i=0;i<4;i++)for(let j=0;j<4;j++)
+        if(!grid2048[i][j]||[0,1,-1].some(d=>grid2048[i+d]?.[j]===grid2048[i][j]||grid2048[i][j+d]===grid2048[i][j]))return true;
+      return false;
+    }
+    document.addEventListener('keydown',function(e){
+      if(document.getElementById('2048').classList.contains('active')){
+        if(over2048)return;
+        if(e.key==='ArrowLeft')move2048('left');
+        if(e.key==='ArrowRight')move2048('right');
+        if(e.key==='ArrowUp')move2048('up');
+        if(e.key==='ArrowDown')move2048('down');
+      }
+    });
+    // Touch swipe for 2048
+    let x0,y0;
+    document.getElementById('game-2048').addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;});
+    document.getElementById('game-2048').addEventListener('touchend',e=>{
+      let dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+      if(Math.abs(dx)>Math.abs(dy)) move2048(dx>0?'right':'left');
+      else move2048(dy>0?'down':'up');
+    });
+    init2048();
+
+    //========= MINESWEEPER ==========
+    let mines, mineBoard, mineRevealed, mineFlagged, mineOver, mineRows=8, mineCols=8, mineMines=10;
+    function minesweeperReset() {
+      mineBoard=Array(mineRows*mineCols).fill(0);mines=[];mineRevealed=[];mineFlagged=[];mineOver=false;
+      while(mines.length<mineMines){let r=Math.floor(Math.random()*mineBoard.length);if(!mines.includes(r))mines.push(r);}
+      mines.forEach(i=>mineBoard[i]=-1);
+      for(let i=0;i<mineBoard.length;i++)if(mineBoard[i]!==-1)mineBoard[i]=mineAdj(i);
+      mineDraw();
+      document.getElementById('minesweeper-status').textContent='';
+    }
+    function mineAdj(i){
+      let r=Math.floor(i/mineCols),c=i%mineCols,adj=0;
+      for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+        let nr=r+dr,nc=c+dc,ni=nr*mineCols+nc;
+        if(nr>=0&&nr<mineRows&&nc>=0&&nc<mineCols&&mines.includes(ni))adj++;
+      }
+      return adj;
+    }
+    function mineDraw(){
+      let b=document.getElementById('minesweeper-board');
+      b.innerHTML='';
+      for(let i=0;i<mineBoard.length;i++){
+        let d=document.createElement('div');
+        d.className='minesweeper-cell'+(mineRevealed.includes(i)?' open':'')+(mineFlagged.includes(i)?' flag':'');
+        d.textContent=mineRevealed.includes(i)?(mineBoard[i]>0?mineBoard[i]:(mineBoard[i]===-1?'💣':'')):mineFlagged.includes(i)?'🚩':'';
+        d.oncontextmenu = e=>{e.preventDefault();mineFlag(i);}
+        d.onclick=()=>mineClick(i);
+        b.appendChild(d);
+      }
+    }
+    function mineClick(i){
+      if(mineOver||mineRevealed.includes(i)||mineFlagged.includes(i))return;
+      if(mineBoard[i]===-1){mineRevealed=mines.slice();mineDraw();mineOver=true;document.getElementById('minesweeper-status').textContent='You hit a mine!';return;}
+      mineReveal(i);
+      if(mineRevealed.length===mineBoard.length-mineMines){
+        document.getElementById('minesweeper-status').textContent='You win!';
+        mineOver=true;
+      }
+      mineDraw();
+    }
+    function mineFlag(i){
+      if(mineOver||mineRevealed.includes(i))return;
+      if(mineFlagged.includes(i))mineFlagged=mineFlagged.filter(f=>f!==i);
+      else if(mineFlagged.length<mineMines)mineFlagged.push(i);
+      mineDraw();
+    }
+    function mineReveal(i){
+      if(mineRevealed.includes(i)||mineFlagged.includes(i))return;
+      mineRevealed.push(i);
+      if(mineBoard[i]===0){
+        let r=Math.floor(i/mineCols),c=i%mineCols;
+        for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){
+          let nr=r+dr,nc=c+dc,ni=nr*mineCols+nc;
+          if(nr>=0&&nr<mineRows&&nc>=0&&nc<mineCols)mineReveal(ni);
+        }
+      }
+    }
+    minesweeperReset();
+
+    //========= GUESS THE NUMBER ==========
+    let guessNum, guessTries;
+    function guessReset() {
+      guessNum = Math.floor(Math.random()*100)+1; guessTries=0;
+      document.getElementById('guess-status').textContent = "";
+      document.getElementById('guess-input').value = "";
+    }
+    function guessCheck() {
+      let val = Number(document.getElementById('guess-input').value);
+      if(!val) return;
+      guessTries++;
+      if(val===guessNum) document.getElementById('guess-status').textContent="Correct! You guessed in "+guessTries+" tries.";
+      else if(val<guessNum) document.getElementById('guess-status').textContent="Too low!";
+      else document.getElementById('guess-status').textContent="Too high!";
+    }
+    guessReset();
+
+    //========= PONG ==========
+    let pongInt, pongBall, pongPaddle, pongAI, pongScore, pongOver;
+    function pongReset() {
+      pongBall={x:200,y:150,vx:3,vy:3};
+      pongPaddle={y:120}; pongAI={y:120}; pongScore=0; pongOver=false;
+      clearInterval(pongInt); pongInt=setInterval(pongMove,18);
+      pongDraw();
+    }
+    function pongDraw() {
+      let c=document.getElementById('pong-board').getContext('2d');
+      c.clearRect(0,0,400,300);
+      c.fillStyle='#232946';
+      c.fillRect(15,pongPaddle.y,10,60);
+      c.fillRect(375,pongAI.y,10,60);
+      c.beginPath(); c.arc(pongBall.x,pongBall.y,8,0,2*Math.PI); c.fillStyle='#eebbc3'; c.fill();
+      c.fillStyle='#232946'; c.font='18px Arial'; c.fillText("Score: "+pongScore,170,25);
+      if(pongOver) c.fillText("Game Over!",150,150);
+    }
+    function pongMove() {
+      if(pongOver) return;
+      pongBall.x+=pongBall.vx; pongBall.y+=pongBall.vy;
+      if(pongBall.y<8||pongBall.y>292)pongBall.vy*=-1;
+      // Player paddle collision
+      if(pongBall.x<25&&pongBall.y>pongPaddle.y&&pongBall.y<pongPaddle.y+60)pongBall.vx*=-1,pongScore++;
+      // AI paddle collision
+      if(pongBall.x>365&&pongBall.y>pongAI.y&&pongBall.y<pongAI.y+60)pongBall.vx*=-1;
+      // AI movement
+      pongAI.y+=((pongBall.y-30)-pongAI.y)*0.1;
+      // Game over
+      if(pongBall.x<0||pongBall.x>400){pongOver=true;clearInterval(pongInt);}
+      pongDraw();
+    }
+    document.addEventListener('keydown',function(e){
+      if(document.getElementById('pong').classList.contains('active')){
+        if(e.key==='ArrowUp')pongPaddle.y=Math.max(0,pongPaddle.y-20);
+        if(e.key==='ArrowDown')pongPaddle.y=Math.min(240,pongPaddle.y+20);
+      }
+    });
+    // Touch for Pong
+    document.getElementById('pong-board').addEventListener('touchmove',e=>{
+      pongPaddle.y=Math.max(0,Math.min(240,e.touches[0].clientY-30));
+    });
+    pongReset();
+
+    //========= BREAKOUT ==========
+    let breakoutCtx, brBall, brPaddle, brBricks, brRows=5, brCols=8, brScore, brOver;
+    function breakoutReset() {
+      breakoutCtx=document.getElementById('breakout-board').getContext('2d');
+      brBall={x:200,y:200,vx:3,vy:-3};
+      brPaddle={x:160}; brBricks=[];
+      for(let r=0;r<brRows;r++)for(let c=0;c<brCols;c++)brBricks.push({x:c*50+10,y:r*20+10,hit:false});
+      brScore=0;brOver=false;
+      clearInterval(window.brInt);window.brInt=setInterval(breakoutMove,15);
+      breakoutDraw();
+    }
+    function breakoutDraw(){
+      breakoutCtx.clearRect(0,0,400,320);
+      // Bricks
+      brBricks.forEach(b=>{if(!b.hit){breakoutCtx.fillStyle="#eebbc3";breakoutCtx.fillRect(b.x,b.y,40,10);}});
+      // Paddle
+      breakoutCtx.fillStyle="#232946";breakoutCtx.fillRect(brPaddle.x,300,80,12);
+      // Ball
+      breakoutCtx.beginPath();breakoutCtx.arc(brBall.x,brBall.y,8,0,2*Math.PI);breakoutCtx.fillStyle="#b8c1ec";breakoutCtx.fill();
+      breakoutCtx.font="16px Arial";breakoutCtx.fillStyle="#232946";breakoutCtx.fillText("Score: "+brScore,170,18);
+      if(brOver) breakoutCtx.fillText("Game Over!",140,160);
+    }
+    function breakoutMove(){
+      if(brOver)return;
+      brBall.x+=brBall.vx;brBall.y+=brBall.vy;
+      // Walls
+      if(brBall.x<8||brBall.x>392)brBall.vx*=-1;
+      if(brBall.y<8)brBall.vy*=-1;
+      // Paddle
+      if(brBall.y>300&&brBall.x>brPaddle.x&&brBall.x<brPaddle.x+80)brBall.vy*=-1;
+      // Bricks
+      brBricks.forEach(b=>{
+        if(!b.hit&&brBall.x>b.x&&brBall.x<b.x+40&&brBall.y>b.y&&brBall.y<b.y+10){
+          brBall.vy*=-1;b.hit=true;brScore++;
+        }
+      });
+      if(brBricks.every(b=>b.hit)){brOver=true;clearInterval(window.brInt);}
+      // Game over
+      if(brBall.y>320){brOver=true;clearInterval(window.brInt);}
+      breakoutDraw();
+    }
+    document.addEventListener('keydown',function(e){
+      if(document.getElementById('breakout').classList.contains('active')){
+        if(e.key==='ArrowLeft')brPaddle.x=Math.max(0,brPaddle.x-20);
+        if(e.key==='ArrowRight')brPaddle.x=Math.min(320,brPaddle.x+20);
+      }
+    });
+    // Touch for Breakout
+    document.getElementById('breakout-board').addEventListener('touchmove',e=>{
+      brPaddle.x=Math.max(0,Math.min(320,e.touches[0].clientX-40));
+    });
+    breakoutReset();
+
+    //========= WHACK-A-MOLE ==========
+    let whackScore, whackActive, whackInt, whackTime;
+    function whackReset() {
+      whackScore=0;whackActive=-1;whackTime=0;
+      document.getElementById('whack-status').textContent="Score: 0";
+      drawWhack();
+      clearInterval(whackInt);whackInt=setInterval(whackStep,800);
+    }
+    function drawWhack(){
+      let b=document.getElementById('whack-board');b.innerHTML='';
+      for(let i=0;i<9;i++){
+        let d=document.createElement('button');
+        d.style.height='60px';d.style.width='60px';d.style.fontSize='2em';
+        d.textContent=(i===whackActive)?"🐹":"";
+        d.onclick=()=>{if(i===whackActive){whackScore++;document.getElementById('whack-status').textContent="Score: "+whackScore;whackActive=-1;drawWhack();}};
+        b.appendChild(d);
+      }
+    }
+    function whackStep(){
+      whackActive=Math.floor(Math.random()*9);whackTime++;
+      drawWhack();
+      if(whackTime===20){clearInterval(whackInt);document.getElementById('whack-status').textContent+=" Game Over!";}
+    }
+    whackReset();
+  </script>
+</body>
+</html>
